@@ -1,0 +1,320 @@
+
+
+
+
+
+
+
+
+
+  
+  
+  
+    
+    
+    
+     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+  
+  <link rel="stylesheet" href="https://www.davidrumsey.com/luna/css/workspace.css" type="text/css" />
+
+  
+  
+  <link rel="stylesheet" href="https://www.davidrumsey.com/luna/themes/earth/earth.css" type="text/css" />
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+<!--  TOUCHCHANGE -->
+<!--<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">-->
+
+
+
+<script type="text/javascript" src="https://www.davidrumsey.com/luna/js/hammer.min.js"></script>
+<script type="text/javascript" src="https://www.davidrumsey.com/luna/js/hammer-time.min.js"></script>
+<script type="text/javascript" src="https://www.davidrumsey.com/luna/js/LunaTouch.js"></script>
+
+
+<!--  /TOUCHCHANGE -->
+  
+  
+  <style>
+    body
+    {
+      padding: 0;
+      margin: 0;
+      background-color: black;
+    }
+
+    #Container
+    {
+      width: 100%;
+      height: 100%;
+    }
+
+    #viewer 
+    {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+    }
+    
+    #viewer .manifest-info{display: none;}
+    #viewer .layout-slot:first-child .slotIconContainer{display: none;}
+    .mirador-osd-pointer-mode{display:none !important;}
+    span.select2.select2-container.select2-container--default{display:none;}
+  </style>
+
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/build/yahoo/yahoo.js" ></script>
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/build/event/event.js" ></script>
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/build/connection/connection.js"></script>
+
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/jsHelper.js" ></script>
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/prototype.1.7.3.js" ></script>
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/insight.js" ></script>
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/ElementEffects.js" ></script>
+ 
+  
+  <link rel="stylesheet" type="text/css" href="/luna/js/mirador/css/mirador-combined.css">
+  <script type="text/javascript" src="https://www.davidrumsey.com/luna/js/mirador/mirador.js" ></script>
+  
+
+  <script type="text/javascript">
+
+    var container;
+    var manager = null;
+    var imagePanel = null;
+    var addImageToGroupMsg = 'Media successfully added!';
+  
+    var mediaGroups = $(new Array());
+    
+    
+    
+    
+    var canAnnotatePublicly = new Object();
+    
+      
+      
+      canAnnotatePublicly['RUMSEY~8~1'] = false;
+      
+    
+    
+    var queryString = document.location.href;
+    var params = queryString.toQueryParams();
+    var mgid = params['mgid'];
+    if( !mgid || mgid==null || mgid==undefined )
+      mgid = 0;
+      
+    var currentUserId = -1;
+    
+        
+    function reqManifest( manifestUri, d1 )
+    {
+	  jQuery.ajax({
+        url: manifestUri,
+        dataType: 'json',
+        async: true,
+        dObj: d1 //deferred
+        //url: "/luna/servlet/iiif/json?uri="+manifestUri,
+      })
+      .success( function( data ){
+        this.dObj.resolve( data );
+      })
+      .error( function(){
+        if( !this.url.startsWith("/luna/servlet/iiif/json?uri=") )
+          reqManifest( "/luna/servlet/iiif/json?uri=" + this.url, this.dObj )
+      });
+    }
+    /**
+     *  This function is called from detailView.jsp when it is time
+     *  to initalize/populate this template.
+     */
+    function initalizeTemplate( workspace, imageInfo, urls, animate )
+    {
+      var manifestUri = imageInfo.hasOwnProperty('uri')? imageInfo.uri : 'https://www.davidrumsey.com/luna/servlet/iiif/m/'+ imageInfo.id + "/manifest";
+      
+      var d1 = jQuery.Deferred();
+      
+      jQuery.when( d1 ).done( function ( manifestJson ) {
+        initializeMirador(  workspace, imageInfo, urls, animate, manifestJson );
+      });
+      
+      reqManifest( manifestUri, d1 );
+    }
+    
+    function initializeMirador( workspace, imageInfo, urls, animate, manifestJson )
+    {
+      $(function() {
+        var changeViewerType = function(viewer){
+          var p = new URLSearchParams(parent.window.location.search);
+          p.set('viewerType', viewer);
+          parent.window.location.search = p.toString();  
+        };
+
+        if( manifestJson.hasOwnProperty("items") ) // v3, force Mirador 3 or Openseadragon7
+          changeViewerType('mirador3');
+        
+        var manifestUri = imageInfo.hasOwnProperty('uri')? imageInfo.uri : 'https://www.davidrumsey.com/luna/servlet/iiif/m/'+ imageInfo.id + "/manifest";
+        var canvasId = (manifestJson.hasOwnProperty("sequences")? manifestJson.sequences[0].canvases[0]["@id"] : '');
+        
+        // Called without "let" or "var"
+        // so we can play with it in the browser
+        myMiradorInstance = Mirador({
+          "id": "viewer",
+          "layout": "1x1",
+          "mainMenuSettings.show":false,
+          "data": [
+            { manifestUri : manifestUri,
+              manifestContent : manifestJson,
+              imageInfo : imageInfo }
+          ],
+          /*"mainMenuSettings": {
+            "buttons": {
+              "bookmark": true
+            }
+          },
+          "jsonStorageEndpoint": {
+            "name": "My local time state endpoint",
+            "module": "MyLocalStateEndpoint",
+            "options": {  }
+          },*/
+          //"saveSession": true,
+          "windowObjects" : [
+             {
+             "loadedManifest" : imageInfo.hasOwnProperty('uri')? imageInfo.uri : 
+               "https://www.davidrumsey.com/luna/servlet/iiif/m/"+ imageInfo.id + "/manifest", 
+             "canvasID" : canvasId,
+             "annotationCreation" : false,
+             "viewType" : imageInfo.book? "BookView" : "ImageView",
+             "sidePanel" : false,
+             "bottomPanel" : false
+             }],
+             "annotationEndpoint": { "name":"LUNA", "module": "SimpleASEndpoint", options:{'url':'https://www.davidrumsey.com/luna/servlet/iiif/annotation/oa'} },
+          "sidePanelOptions" : {
+            "tocTabAvailable": false,
+            "layersTabAvailable": false,
+            "searchTabAvailable": false,
+            "annotations" : false
+          },
+       });
+  
+        
+        
+        myMiradorInstance.eventEmitter.subscribe("windowAdded", function(){
+          // if not logged in, don't allow edits
+          
+          $('.mirador-osd-annotations-layer').on('click',function(){
+            $('.mirador-osd-edit-mode').each(function(i,el){if($(el).is(':visible')){console.log('visible');this.hide()}});
+          });
+
+          myMiradorInstance.eventEmitter.subscribe("updateTooltips." + myMiradorInstance.saveController.currentConfig.windowObjects[0].id, function(){
+            var windowId = myMiradorInstance.saveController.currentConfig.windowObjects[0].id;
+            if( $('#annotation-viewer-' + windowId ).find( '.button-container').is(':visible') )
+              $('#annotation-viewer-' + windowId ).find( '.button-container').hide();
+            
+            setupLunaEvents( myMiradorInstance.viewer.element );
+          });
+        });
+
+        
+      });
+      
+    }
+    
+    function setupLunaEvents( element )
+    {
+      var controlsDisplayed = [];
+      var allControls = element.find('.hud-control');
+      element.find('.hud-control').each(function(){
+        if( $(this).is(':visible') )
+          controlsDisplayed.push(this);
+      });
+      
+      element.find('.openseadragon-canvas')
+    }
+
+  </script>
+</head>
+
+<body style="touch-action: none">
+  <div id="viewer"></div>
+
+  
+  
+    <!-- TOUCHCHANGE -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- /TOUCHCHANGE -->
+
+  
+
+</body>
+</html>
+
+    
+  
+  
+  

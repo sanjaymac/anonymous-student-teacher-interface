@@ -1,0 +1,104 @@
+<!-- <html>
+    
+    <body>
+<form action="welcome" method="get">
+I want my students to call me by:<br><input type="text" name="name"><br>
+Enter Password<br><input type="password" name="password"><br>
+Enter mail:<br><input type="text" name="mail"><br>
+
+
+<input type="submit" value="create new user" id="submit">
+</form>
+</body>
+</html>                                                                                                          -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add user</title>
+</head>
+<style>
+    *{
+        margin: 0px;
+        padding:0px;
+        box-sizing: border-box;
+        font-size: 30px;
+
+    }
+    body{
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: url("maxresdefault (1).jpg");
+        background-size: 100% 100%;
+
+    }
+    form{
+        height:50vh;
+        width:55vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items:center;
+        border: 1px solid black;
+        border-radius:15px;
+        box-shadow: 10px 20px 10px 20px;
+
+    }
+    #name,#password,#mail{
+            padding:10px 20px;
+            border-radius:10px;
+            width:27vw; 
+            background-color: #03b2c9bb;
+
+    }
+    /* input{
+            width: 120px;
+            margin:2px 5px;
+            border-radius: 5px;
+            outline: none;
+            background-color: #03b2c9bb;
+            color:rgb(0, 0, 0);
+        } */
+        #submit{
+            padding:10px;
+            background-color: #03b2c9bb;
+            color:rgb(0, 0, 0);
+            outline: none;
+            border-radius: 5px;
+
+
+        }
+</style>
+<body>
+    <center>
+    <form action="welcome" method="post">
+        <div>
+        <!-- <label for="name">I want my students to call me by:</label>-->I want my students to call me by:<br><input type="text" id="name" name="name" placeholder="I want my students to call me by..">
+        </div>
+        <div>
+        <!-- <label for="password">Enter Password:</label>-->Enter Password:<br><input type="password"id="password" name="password" placeholder="Enter Password.."><br> 
+        <br>   
+        <input id="pass" type="checkbox" onclick="viewpass()">&nbsp;show password <br>
+        Enter mail:<br><input type="text" id="mail" name="mail" ><br>
+
+        </div>
+        <input type="submit" id="submit" value="create new user">
+    </form> 
+</center>    
+</body>
+<script>
+    function viewpass(){
+    var x = document.getElementById("password");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  }
+</script>
+</html>

@@ -1,0 +1,67 @@
+<HTML>
+    <HEAD>
+        <TITLE>motta kadidhasi</TITLE>
+    </HEAD>
+    <style>
+        *{
+        margin:0px;
+        padding:0px;
+        }
+        body{
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: url('https://static.vecteezy.com/system/resources/previews/002/188/833/non_2x/chat-wallpaper-social-media-message-background-copy-space-for-a-text-vector.jpg');
+            background-size: 100% 100%;
+            color:black;
+        }
+        #div{
+            height: 45vh;
+            width: 30vw;
+            display: flex;
+            flex-direction:column ;
+            background-blend-mode: darken;
+            box-shadow: 20px 20px 50px 15px black;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        input[type=submit]{
+             padding:10px 20px;
+             color:white;
+             background-color: black;
+             border-radius:10px;
+        }
+        input[type=password],input[type=text]{
+            padding:10px 20px;
+            border-radius:10px; 
+        }
+    </style>
+    <body>
+     <form action="filter" method="get">
+        <div id="div">
+        <h1>My Students call me by:</h1>
+            <select name="name" >
+            </select>
+            <div id="sp">
+            <input id="ad_p"type="password" name="password"placeholder="Enter your password..."><br>
+            <br>
+            <input id="pass" type="checkbox" onclick="viewpass()">&nbsp;&nbsp;&nbsp;show password
+            </div>
+            <input type="submit" value="login">
+            <input type="submit" value="Add new user?" name="add" >
+        </div>
+        </form>
+    </BODY>
+    <script>
+    function viewpass(){
+    var x = document.getElementById("ad_p");
+    if (x.type === "password") {
+      x.type = "text";
+    } else {
+      x.type = "password";
+    }
+  }
+</script>
+    </HTML>
